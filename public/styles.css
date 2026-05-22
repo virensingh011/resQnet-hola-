@@ -196,11 +196,8 @@ button.ghost {
 .map-fallback {
   display: none;
   background:
-    linear-gradient(110deg, rgba(255,255,255,0.56), rgba(255,255,255,0.12) 36%, rgba(21,132,95,0.12) 74%),
-    linear-gradient(90deg, rgba(23, 32, 51, 0.08) 1px, transparent 1px),
-    linear-gradient(rgba(23, 32, 51, 0.08) 1px, transparent 1px),
-    linear-gradient(135deg, #c8d9e6, #eef6fa 45%, #d4e2d8);
-  background-size: auto, 52px 52px, 52px 52px, auto;
+    linear-gradient(180deg, rgba(242, 248, 252, 0.92), rgba(218, 232, 239, 0.9)),
+    #d8e7ee;
 }
 
 .map-fallback.active {
@@ -210,7 +207,7 @@ button.ghost {
 
 .fallback-pin {
   position: absolute;
-  z-index: 4;
+  z-index: 6;
   width: 18px;
   height: 18px;
   border: 3px solid white;
@@ -226,16 +223,63 @@ button.ghost {
 
 .fallback-route {
   position: absolute;
-  z-index: 3;
+  z-index: 5;
   height: 4px;
   border-radius: 999px;
   background: rgba(22, 103, 217, 0.55);
   transform-origin: left center;
 }
 
+.fallback-basemap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.fallback-basemap text {
+  fill: rgba(61, 76, 96, 0.62);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.land {
+  fill: #d7e7dc;
+  stroke: #adc8b5;
+  stroke-width: 1.4;
+}
+
+.water-line {
+  fill: none;
+  stroke: rgba(75, 128, 150, 0.22);
+  stroke-width: 1;
+}
+
+.road-major {
+  fill: none;
+  stroke: rgba(68, 111, 151, 0.45);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.road-minor {
+  fill: none;
+  stroke: rgba(108, 132, 150, 0.28);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.map-area {
+  fill: rgba(255, 255, 255, 0.22);
+  stroke: rgba(92, 122, 144, 0.18);
+  stroke-width: 1;
+}
+
 .fallback-label {
   position: absolute;
-  z-index: 5;
+  z-index: 7;
   max-width: 190px;
   padding: 7px 9px;
   border: 1px solid rgba(216, 225, 234, 0.94);
@@ -261,7 +305,7 @@ button.ghost {
   position: absolute;
   left: 14px;
   top: 14px;
-  z-index: 5;
+  z-index: 8;
   padding: 9px 11px;
   border: 1px solid rgba(216, 225, 234, 0.94);
   border-radius: 8px;

@@ -576,18 +576,19 @@ function renderFallbackMap(payload) {
   const incidentById = new Map(payload.incidents.map(incident => [incident.id, incident]));
   const hubById = new Map(hubs.map(hub => [hub.id, hub]));
   const points = [...hubs, ...payload.incidents];
-  const lats = points.map(point => point.lat);
-  const lons = points.map(point => point.lon);
-  const minLat = Math.min(...lats);
-  const maxLat = Math.max(...lats);
-  const minLon = Math.min(...lons);
-  const maxLon = Math.max(...lons);
-  const latRange = Math.max(0.02, maxLat - minLat);
-  const lonRange = Math.max(0.02, maxLon - minLon);
+  const worldView = new Set(payload.incidents.map(incident => incident.cityId)).size > 1;
+  const extents = getMapExtents(points);
 
   function project(point) {
-    const x = ((point.lon - minLon) / lonRange) * 70 + 15;
-    const y = (1 - ((point.lat - minLat) / latRange)) * 58 + 22;
+    if (worldView) {
+      return {
+        x: ((point.lon + 180) / 360) * 82 + 9,
+        y: ((82 - point.lat) / 164) * 66 + 16
+      };
+    }
+
+    const x = ((point.lon - extents.minLon) / extents.lonRange) * 66 + 17;
+    const y = (1 - ((point.lat - extents.minLat) / extents.latRange)) * 54 + 24;
     return { x, y };
   }
 
@@ -621,15 +622,84 @@ function renderFallbackMap(payload) {
     `;
   }).join("");
 
+  const basemap = worldView ? buildWorldBasemap() : buildLocalBasemap(payload.incidents[0]?.cityName || "Local area");
   const title = `
     <div class="map-title">
-      Local response map
+      ${worldView ? "World response map" : "Local street map"}
       <small>${payload.incidents.length} incidents, ${hubs.length} hubs, ${payload.plan.allocations.length} routes</small>
     </div>
   `;
 
-  els.mapFallback.innerHTML = title + routes + pins + labels;
+  els.mapFallback.innerHTML = basemap + title + routes + pins + labels;
   els.mapFallback.classList.add("active");
+}
+
+function getMapExtents(points) {
+  const lats = points.map(point => point.lat);
+  const lons = points.map(point => point.lon);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLon = Math.min(...lons);
+  const maxLon = Math.max(...lons);
+  const latPad = Math.max(0.04, (maxLat - minLat) * 0.3);
+  const lonPad = Math.max(0.04, (maxLon - minLon) * 0.3);
+  return {
+    minLat: minLat - latPad,
+    maxLat: maxLat + latPad,
+    minLon: minLon - lonPad,
+    maxLon: maxLon + lonPad,
+    latRange: Math.max(0.02, maxLat - minLat + latPad * 2),
+    lonRange: Math.max(0.02, maxLon - minLon + lonPad * 2)
+  };
+}
+
+function buildWorldBasemap() {
+  return `
+    <svg class="fallback-basemap" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true">
+      <rect width="1000" height="520" fill="#d9ebf2"></rect>
+      <path class="water-line" d="M0 125 C160 100 250 150 410 128 S680 96 1000 130"></path>
+      <path class="water-line" d="M0 325 C180 300 300 356 470 332 S720 292 1000 335"></path>
+      <path class="land" d="M95 120 C140 62 225 78 260 132 C298 188 250 234 188 220 C130 210 60 180 95 120Z"></path>
+      <path class="land" d="M215 245 C268 228 323 260 322 318 C322 390 250 428 214 368 C180 310 160 266 215 245Z"></path>
+      <path class="land" d="M430 98 C520 56 628 80 705 130 C782 182 770 252 676 262 C600 270 550 228 482 230 C410 232 360 175 430 98Z"></path>
+      <path class="land" d="M575 250 C650 238 720 275 745 340 C775 418 672 448 618 395 C574 352 530 275 575 250Z"></path>
+      <path class="land" d="M790 278 C852 244 940 262 958 325 C977 390 900 425 835 392 C782 365 740 306 790 278Z"></path>
+      <path class="land" d="M488 312 C548 310 595 350 582 400 C566 462 472 462 438 408 C404 354 426 314 488 312Z"></path>
+      <text x="126" y="112">North America</text>
+      <text x="215" y="342">South America</text>
+      <text x="478" y="142">Europe</text>
+      <text x="620" y="190">Asia</text>
+      <text x="492" y="382">Africa</text>
+      <text x="833" y="360">Australia</text>
+    </svg>
+  `;
+}
+
+function buildLocalBasemap(cityName) {
+  return `
+    <svg class="fallback-basemap" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true">
+      <rect width="1000" height="520" fill="#ddebf0"></rect>
+      <path class="map-area" d="M45 90 H955 V430 H45Z"></path>
+      <path class="map-area" d="M110 130 H360 V260 H110Z"></path>
+      <path class="map-area" d="M390 115 H650 V245 H390Z"></path>
+      <path class="map-area" d="M690 140 H900 V300 H690Z"></path>
+      <path class="map-area" d="M170 305 H455 V420 H170Z"></path>
+      <path class="map-area" d="M510 295 H850 V425 H510Z"></path>
+      <path class="road-major" d="M40 268 C190 235 325 260 480 238 S760 198 960 230"></path>
+      <path class="road-major" d="M238 70 C260 180 248 285 310 450"></path>
+      <path class="road-major" d="M620 70 C590 190 635 310 590 455"></path>
+      <path class="road-minor" d="M80 155 H930"></path>
+      <path class="road-minor" d="M80 350 H930"></path>
+      <path class="road-minor" d="M140 82 V450"></path>
+      <path class="road-minor" d="M430 82 V450"></path>
+      <path class="road-minor" d="M780 82 V450"></path>
+      <path class="water-line" d="M0 470 C220 430 360 505 520 462 S780 415 1000 455"></path>
+      <text x="82" y="112">${escapeHtml(cityName)} response area</text>
+      <text x="130" y="252">Main corridor</text>
+      <text x="642" y="220">Hospital district</text>
+      <text x="520" y="382">Shelter zone</text>
+    </svg>
+  `;
 }
 
 function getVisibleHubs(incidents) {
