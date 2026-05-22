@@ -582,10 +582,12 @@ function renderFallbackMap(payload) {
   const maxLat = Math.max(...lats);
   const minLon = Math.min(...lons);
   const maxLon = Math.max(...lons);
+  const latRange = Math.max(0.02, maxLat - minLat);
+  const lonRange = Math.max(0.02, maxLon - minLon);
 
   function project(point) {
-    const x = ((point.lon - minLon) / Math.max(1, maxLon - minLon)) * 82 + 9;
-    const y = (1 - ((point.lat - minLat) / Math.max(1, maxLat - minLat))) * 74 + 12;
+    const x = ((point.lon - minLon) / lonRange) * 70 + 15;
+    const y = (1 - ((point.lat - minLat) / latRange)) * 58 + 22;
     return { x, y };
   }
 
@@ -606,7 +608,27 @@ function renderFallbackMap(payload) {
     return `<span class="fallback-pin ${type}" title="${escapeHtml(point.name)}" style="left:${pos.x}%;top:${pos.y}%"></span>`;
   }).join("");
 
-  els.mapFallback.innerHTML = routes + pins;
+  const labels = points.map(point => {
+    const pos = project(point);
+    const type = point.capacity ? "Hub" : `${format(point.people)} people`;
+    const labelY = clamp(pos.y, 12, 82);
+    const labelX = clamp(pos.x, 8, 78);
+    return `
+      <span class="fallback-label" style="left:${labelX}%;top:${labelY}%">
+        ${escapeHtml(point.name)}
+        <small>${escapeHtml(type)}</small>
+      </span>
+    `;
+  }).join("");
+
+  const title = `
+    <div class="map-title">
+      Local response map
+      <small>${payload.incidents.length} incidents, ${hubs.length} hubs, ${payload.plan.allocations.length} routes</small>
+    </div>
+  `;
+
+  els.mapFallback.innerHTML = title + routes + pins + labels;
   els.mapFallback.classList.add("active");
 }
 

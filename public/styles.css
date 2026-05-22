@@ -196,10 +196,11 @@ button.ghost {
 .map-fallback {
   display: none;
   background:
+    linear-gradient(110deg, rgba(255,255,255,0.56), rgba(255,255,255,0.12) 36%, rgba(21,132,95,0.12) 74%),
     linear-gradient(90deg, rgba(23, 32, 51, 0.08) 1px, transparent 1px),
     linear-gradient(rgba(23, 32, 51, 0.08) 1px, transparent 1px),
     linear-gradient(135deg, #c8d9e6, #eef6fa 45%, #d4e2d8);
-  background-size: 52px 52px, 52px 52px, auto;
+  background-size: auto, 52px 52px, 52px 52px, auto;
 }
 
 .map-fallback.active {
@@ -209,12 +210,14 @@ button.ghost {
 
 .fallback-pin {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  z-index: 4;
+  width: 18px;
+  height: 18px;
   border: 3px solid white;
   border-radius: 999px;
   background: var(--red);
   box-shadow: 0 10px 24px rgba(23, 32, 51, 0.22);
+  transform: translate(-50%, -50%);
 }
 
 .fallback-pin.hub {
@@ -223,10 +226,102 @@ button.ghost {
 
 .fallback-route {
   position: absolute;
-  height: 2px;
+  z-index: 3;
+  height: 4px;
   border-radius: 999px;
   background: rgba(22, 103, 217, 0.55);
   transform-origin: left center;
+}
+
+.fallback-label {
+  position: absolute;
+  z-index: 5;
+  max-width: 190px;
+  padding: 7px 9px;
+  border: 1px solid rgba(216, 225, 234, 0.94);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+  box-shadow: 0 8px 18px rgba(23, 32, 51, 0.1);
+  transform: translate(10px, -50%);
+}
+
+.fallback-label small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.map-title {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  z-index: 5;
+  padding: 9px 11px;
+  border: 1px solid rgba(216, 225, 234, 0.94);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.map-title small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.map-legend {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 6;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(216, 225, 234, 0.94);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.map-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border-radius: 999px;
+}
+
+.legend-dot.hub {
+  background: var(--blue);
+}
+
+.legend-dot.incident {
+  background: var(--red);
+}
+
+.legend-line {
+  width: 22px;
+  height: 4px;
+  display: inline-block;
+  border-radius: 999px;
+  background: rgba(22, 103, 217, 0.6);
 }
 
 .map-overlay {
